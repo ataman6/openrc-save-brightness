@@ -1,0 +1,27 @@
+#!/sbin/openrc-run
+
+BR_DIRECTORY=/var/local/brightness
+BR_MONITORS=/sys/class/backlight
+
+# make sure the directory exists
+mkdir -p "$BR_DIRECTORY"
+
+depend () { :; }
+
+describe () {
+	echo this service restores brightness of the monitor on start and saves it on stop
+}
+start () {
+	echo restoring monitor brightness
+	for mondir in "$BR_DIRECTORY/"*; do
+		mon="$(basename "$mondir")"
+		cat "$BR_DIRECTORY/$mon" >"$BR_MONITORS/$mon/brightness"
+	done
+}
+stop () {
+	echo saving monitor brightness
+	for mondir in "$BR_MONITORS/"*; do
+		mon="$(basename "$mondir")"
+		cat "$BR_MONITORS/$mon/brightness" >"$BR_DIRECTORY/$mon"
+	done
+}
